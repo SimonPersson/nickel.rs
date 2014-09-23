@@ -96,7 +96,7 @@ impl<'a, 'b> Response<'a, 'b> {
                     )
                 }
             );
-        let _ = template.render(self.origin, data);
+        let _ = template.render(self.origin, &data);
     }
 }
 
