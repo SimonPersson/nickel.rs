@@ -125,11 +125,11 @@ impl<'a, 'b> Response<'a, 'b> {
     /// }
     /// ```
     pub fn render<'c, T: Encodable>
-        (&mut self, path: &'static str, data: &T) {
+        (&mut self, template_str: &'static str, data: &T) {
             // Fast path doesn't need writer lock
             {
                 let templates = self.templates.read().unwrap();
-                if let Some(t) = templates.get(&path) {
+                if let Some(t) = templates.get(&template_str) {
                     let _ = t.render(self.origin, data);
                     return
                 }
@@ -138,14 +138,9 @@ impl<'a, 'b> Response<'a, 'b> {
             // We didn't find the template, get writers lock and
             let mut templates = self.templates.write().unwrap();
             // search again incase there was a race to compile the template
-            let template = match templates.entry(path) {
+            let template = match templates.entry(template_str) {
                 Vacant(entry) => {
-                    let mut file = File::open(&Path::new(path));
-                    let raw_template = file.read_to_string()
-                                           .ok()
-                                           .expect(&format!("Couldn't open the template file: {}",
-                                                            path)[]);
-                    entry.insert(mustache::compile_str(&raw_template[]))
+                    entry.insert(mustache::compile_str(template_str))
                 },
                 Occupied(entry) => entry.into_mut()
             };

@@ -13,7 +13,7 @@ fn main() {
     fn root_handler (_request: &Request, response: &mut Response) {
         let mut data = HashMap::<&str, &str>::new();
         data.insert("name", "user");
-        response.render("examples/assets/template.tpl", &data);
+        response.render(include_str!("assets/template.tpl"), &data);
     }
 
     // issue #20178
